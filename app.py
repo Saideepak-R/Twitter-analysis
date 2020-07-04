@@ -82,6 +82,17 @@ def get_sentiment(review):
         sentiment = 'Neutral'
     return sentiment
 
+def highlight(x):
+    if x['Type of sentiment']  == 'Negative':
+        return ['background-color: pink']* 7
+    
+    elif x['Type of sentiment']  == 'Positive' :
+        return ['background-color: lightgreen']* 7
+    
+    else:
+        return ['background-color: white']* 7
+        
+
 def plots(input_df):
     g = sns.countplot(x = 'Dominant_Topic' , data = input_df )
     plt.title('Topic modelling')
@@ -89,19 +100,28 @@ def plots(input_df):
         g.annotate(format(p.get_height() ), (p.get_x() + p.get_width() / 2., p.get_height()), ha = 'center', va = 'center', xytext = (0, 5), textcoords = 'offset points')
     
     st.pyplot()
-        
-    input_df['Type of sentiment'] = input_df['text'].apply(get_sentiment)
+    
+         
     g = sns.countplot(x = 'Type of sentiment' , data = input_df )
     plt.title('Sentiment analysis')
     for p in g.patches:
         g.annotate(format(p.get_height() ), (p.get_x() + p.get_width() / 2., p.get_height()), ha = 'center', va = 'center', xytext = (0, 5), textcoords = 'offset points')
     
     st.pyplot()
+    
+    
+    wc = WordCloud(max_font_size=50, max_words=100, background_color="white").generate(' '.join( input_df['hashtags']))
+    plt.figure(figsize=(15,15))
+    plt.axis('off')
+    plt.title('Word cloud of hashtags')
+    plt.imshow(wc)
+    plt.show()
+    st.pyplot()
         
     for i in input_df['Dominant_Topic'].unique():
-        df1 = input_df[input_df['Dominant_Topic']==i]
+        df2 = input_df[input_df['Dominant_Topic']==i]
             
-        wc = WordCloud(max_font_size=50, max_words=100, background_color="white").generate(' '.join( df1['text']))
+        wc = WordCloud(max_font_size=50, max_words=100, background_color="white").generate(' '.join( df2['text']))
         plt.figure(figsize=(15,15))
         plt.axis('off')
         plt.title('Word cloud of' + ' ' + i)
@@ -154,51 +174,61 @@ def run():
             df = df.append(curr_tweet, ignore_index=True)
             
             
-        doc = preprocessing(df['text'])
-        new_doc = pd.DataFrame(doc)
-        new_doc.columns = ['text']
-        
-     
-        
-        
+        #doc = preprocessing(df['text'])
+        #new_doc = pd.DataFrame(doc)
+        #new_doc.columns = ['text']
+           
         #intialize the setup
-        exp_nlp = setup(data = new_doc , target = 'text' )
+        exp_nlp = setup(data = df , target = 'text' )
         
         if select_option == 'Latent Dirichlet Allocation':
             model1 = create_model(model = 'lda' , num_topics = no_topics )
             df = assign_model(model1)
-            plotting = plots(df)
+            df['Type of sentiment'] = df['text'].apply(get_sentiment)
+            df1 = df[['created_at','hashtags','likes','retweets','text','Dominant_Topic','Type of sentiment']]
+            df2 = df1.style.apply(highlight, axis=1)
+            st.write(df2)
+            plotting = plots(df1)
             plotting
         
         elif select_option == 'Latent Semantic Indexing':
             model1 = create_model(model = 'lsi' , num_topics = no_topics )
             df = assign_model(model1)
-            plotting = plots(df)
+            df['Type of sentiment'] = df['text'].apply(get_sentiment)
+            df1 = df[['created_at','hashtags','likes','retweets','text','Dominant_Topic','Type of sentiment']]
+            df2 = df1.style.apply(highlight, axis=1)
+            st.write(df2)
+            plotting = plots(df1)
             plotting
               
         elif select_option == 'Hierarchical Dirichlet Process':
             model1 = create_model(model = 'hdp' , num_topics = no_topics )
             df = assign_model(model1)
-            plotting = plots(df)
+            df['Type of sentiment'] = df['text'].apply(get_sentiment)
+            df1 = df[['created_at','hashtags','likes','retweets','text','Dominant_Topic','Type of sentiment']]
+            df2 = df1.style.apply(highlight, axis=1)
+            st.write(df2)
+            plotting = plots(df1)
             plotting
           
         elif select_option == 'Random Projections':
             model1 = create_model(model = 'rp' , num_topics = no_topics )
             df = assign_model(model1)
-            plotting = plots(df)
+            df['Type of sentiment'] = df['text'].apply(get_sentiment)
+            df1 = df[['created_at','hashtags','likes','retweets','text','Dominant_Topic','Type of sentiment']]
+            df2 = df1.style.apply(highlight, axis=1)
+            st.write(df2)
+            plotting = plots(df1)
             plotting
                     
         elif select_option == 'Non-Negative Matrix Factorization':
             model1 = create_model(model = 'nmf' , num_topics = no_topics )
             df = assign_model(model1)
-            plotting = plots(df)
-            plotting
-            
-    
- 
-        #plot_model(model1 , plot = 'frequency')
-        #st.plotly_chart(plot1 , use_container_width = True )
-               
-        #st.write(df)   
+            df['Type of sentiment'] = df['text'].apply(get_sentiment)
+            df1 = df[['created_at','hashtags','likes','retweets','text','Dominant_Topic','Type of sentiment']]
+            df2 = df1.style.apply(highlight, axis=1)
+            st.write(df2)
+            plotting = plots(df1)
+            plotting  
 if __name__=='__main__':
     run()
