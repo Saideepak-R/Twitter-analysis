@@ -133,7 +133,7 @@ tqdm==4.47.0
 traitlets==4.3.3
 tzlocal==2.1
 umap-learn==0.4.6
-urllib3==1.25.9
+urllib3==1.26.5
 validators==0.15.0
 wasabi==0.7.0
 watchdog==0.10.3
